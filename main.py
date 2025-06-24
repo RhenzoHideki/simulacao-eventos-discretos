@@ -1,15 +1,22 @@
 from des.core import Simulator
 from des.fila import QueueServer
 from des.eventos import Arrival
+from des.lcg import RandomLCG
+import matplotlib.pyplot as plt
 
 # Parâmetros da simulação
 lambda1 = 10   # chegada externa em Fila 1
 lambda2 = 20   # chegada externa em Fila 4
 mu1 = mu2 = mu3 = mu4 = 30  # taxas de serviço
-end_time = 1000000  # tempo total de simulação (em segundos)
+end_time = 10000  # tempo total de simulação (em segundos)
 
-# Inicializa simulador
-sim = Simulator(end_time)
+# Instancia o PRNG Linear Congruente
+seed = 42
+prng = RandomLCG(seed=seed)
+
+# Inicializa simulador, passando o PRNG
+sim = Simulator(end_time, prng)
+
 sim.queues = {
     'Q1': QueueServer('Q1', mu1),
     'Q2': QueueServer('Q2', mu2),
@@ -23,21 +30,6 @@ sim.schedule(Arrival(0, sim.queues['Q4'], lambda2, externo=True))
 
 # Executa simulação
 sim.run()
-
-# Coleta e imprime métricas
-print("\n==== Resultados ====\n")
-print("Fila | Utilização | Tempo médio resposta | Vazão (clientes/s) | Perdas")
-for qname, q in sim.queues.items():
-    utilizacao = q.total_busy_time / end_time
-    tempo_medio_resposta = q.total_response_time / q.completed if q.completed > 0 else 0
-    vazao = q.completed / end_time
-    print(f"{qname:4} | {utilizacao:10.3f} | {tempo_medio_resposta:18.4f} | {vazao:20.4f} | {q.losses}")
-
-print("\nVazão nas saídas de Q3 e Q4:")
-print(f"Q3: {sim.queues['Q3'].completed / end_time:.4f} clientes/s")
-print(f"Q4: {sim.queues['Q4'].completed / end_time:.4f} clientes/s")
-
-import matplotlib.pyplot as plt
 
 # --- Coleta os dados em listas para plotar ---
 fila_names = list(sim.queues.keys())
