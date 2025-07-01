@@ -9,3 +9,4 @@ class QueueServer:
         self.last_event_time = 0
         self.completed = 0
         self.total_response_time = 0
+        self.departure_times = [] 

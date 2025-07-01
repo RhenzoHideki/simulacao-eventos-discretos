@@ -16,10 +16,8 @@ class RandomLCG:
     def expovariate(self, lambd):
         "Gera variável aleatória exponencial"
         u = self.random()
-        # Evitar log(0)
         if u == 0:
             u = 1e-12
         return - (1.0 / lambd) * np.log(u)
 
-# Obs: vamos usar numpy apenas para o log. 
 import numpy as np

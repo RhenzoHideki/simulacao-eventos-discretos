@@ -56,7 +56,32 @@ print("\nVazão nas saídas de Q3 e Q4:")
 print(f"Q3: {vazoes[fila_names.index('Q3')]:.4f} clientes/s")
 print(f"Q4: {vazoes[fila_names.index('Q4')]:.4f} clientes/s")
 
-# --- Gráfico: Utilização ---
+# --- Vazão por intervalo ---
+intervalo = 100  # segundos
+print("\n==== Vazão por tempo (clientes/s) ====")
+for qname in fila_names:
+    q = sim.queues[qname]
+    n_intervals = int(end_time // intervalo) + 1
+    throughput_per_interval = [0] * n_intervals
+    for t in q.departure_times:
+        idx = int(t // intervalo)
+        throughput_per_interval[idx] += 1
+    print(f"\nFila {qname} - Vazão por intervalo de {intervalo}s:")
+    for i, count in enumerate(throughput_per_interval):
+        print(f"  Tempo {i*intervalo:>5} - {(i+1)*intervalo:>5} s: {count/intervalo:.4f} clientes/s")
+
+    # --- Gráfico de vazão por tempo ---
+    throughput_per_interval = [x/intervalo for x in throughput_per_interval]
+    plt.figure(figsize=(8,3))
+    plt.step([intervalo*i for i in range(n_intervals)], throughput_per_interval, where='post')
+    plt.title(f'Vazão ao longo do tempo - {qname}')
+    plt.xlabel('Tempo (s)')
+    plt.ylabel('Vazão (clientes/s)')
+    plt.tight_layout()
+    plt.savefig(f'vazao_tempo_{qname}.png')
+    plt.show()
+
+# --- Gráficos já existentes ---
 plt.figure(figsize=(6,4))
 plt.bar(fila_names, utilizacoes)
 plt.title('Utilização de cada Fila')
@@ -67,7 +92,6 @@ plt.tight_layout()
 plt.savefig('utilizacao_filas.png')
 plt.show()
 
-# --- Gráfico: Tempo médio de resposta ---
 plt.figure(figsize=(6,4))
 plt.bar(fila_names, tempos_resposta)
 plt.title('Tempo médio de resposta de cada Fila')
@@ -77,7 +101,6 @@ plt.tight_layout()
 plt.savefig('tempo_resposta_filas.png')
 plt.show()
 
-# --- Gráfico: Vazão de cada Fila ---
 plt.figure(figsize=(6,4))
 plt.bar(fila_names, vazoes)
 plt.title('Vazão de saída de cada Fila')
@@ -87,7 +110,6 @@ plt.tight_layout()
 plt.savefig('vazao_filas.png')
 plt.show()
 
-# --- Gráfico: Perdas ---
 plt.figure(figsize=(6,4))
 plt.bar(fila_names, perdas)
 plt.title('Número de perdas em cada Fila')

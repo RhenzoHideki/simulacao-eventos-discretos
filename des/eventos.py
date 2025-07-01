@@ -6,7 +6,7 @@ class Arrival(Event):
         self.queue = queue
         self.arrival_rate = arrival_rate
         self.externo = externo
-    # ... como antes ...
+
     def processing_event(self, simulator):
         queue = self.queue
         queue.arrivals += 1
@@ -35,9 +35,11 @@ class Departure(Event):
         queue.busy = False
         queue.total_response_time += simulator.current_time - queue.last_event_time
 
+        # Guarda o tempo da saída
+        queue.departure_times.append(simulator.current_time)
+
         # Roteamento
         if queue.name == 'Q1':
-            # 70% para Fila 2, 30% descartado
             if simulator.prng.random() < 0.7:
                 simulator.schedule(Arrival(simulator.current_time, simulator.queues['Q2']))
         elif queue.name == 'Q2':
